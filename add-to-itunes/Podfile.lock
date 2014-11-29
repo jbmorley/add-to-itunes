@@ -1,0 +1,50 @@
+PODS:
+  - AFNetworking (2.5.0):
+    - AFNetworking/NSURLConnection (= 2.5.0)
+    - AFNetworking/NSURLSession (= 2.5.0)
+    - AFNetworking/Reachability (= 2.5.0)
+    - AFNetworking/Security (= 2.5.0)
+    - AFNetworking/Serialization (= 2.5.0)
+    - AFNetworking/UIKit (= 2.5.0)
+  - AFNetworking/NSURLConnection (2.5.0):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/NSURLSession (2.5.0):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (2.5.0)
+  - AFNetworking/Security (2.5.0)
+  - AFNetworking/Serialization (2.5.0)
+  - ILMovieDB (0.0.2):
+    - AFNetworking (~> 2.5)
+  - ISMediaKit (0.0.1):
+    - ILMovieDB
+    - ISUtilities (~> 1.1)
+    - iTVDb (~> 0.0.4)
+  - ISUtilities (1.1.2):
+    - ISUtilities/UIKit+ISUtilities (= 1.1.2)
+  - iTVDb (0.0.4)
+
+DEPENDENCIES:
+  - ILMovieDB (from `../dependencies/ILMovieDB`)
+  - ISMediaKit (from `../dependencies/ISMediaKit`)
+  - iTVDb (from `../dependencies/itvdb`)
+
+EXTERNAL SOURCES:
+  ILMovieDB:
+    :path: ../dependencies/ILMovieDB
+  ISMediaKit:
+    :path: ../dependencies/ISMediaKit
+  iTVDb:
+    :path: ../dependencies/itvdb
+
+SPEC CHECKSUMS:
+  AFNetworking: 0f54cb5d16ce38c1b76948faffb8d5fb705021c7
+  ILMovieDB: 3b22572e9796e165de4969e2c15237c268a58243
+  ISMediaKit: 44b33efabbbe8867823030bbbe209757a8a2fd6e
+  ISUtilities: 54a87bc8a165765eaaaeb55b44b0ac8b4ed091dd
+  iTVDb: 46224f395fc5e64e4fb1778b16ebac0f0b44c6fa
+
+COCOAPODS: 0.35.0
