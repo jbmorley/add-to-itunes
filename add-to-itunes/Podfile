@@ -1,0 +1,5 @@
+platform :osx, '10.9'
+
+pod 'ILMovieDB', :path => '../../shows/dependencies/ILMovieDB'
+pod 'iTVDb', :path => '../../shows/dependencies/itvdb'
+pod 'ISMediaKit', :path => '../../shows/dependencies/ISMediaKit'
