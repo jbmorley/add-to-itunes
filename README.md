@@ -13,4 +13,5 @@ From the root of the project:
 
 ```
 git submodule update --init --recursive
+./scripts/build.sh
 ```
