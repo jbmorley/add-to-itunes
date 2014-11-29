@@ -4,3 +4,6 @@
 [submodule "dependencies/iTVDb"]
 	path = dependencies/iTVDb
 	url = git@github.com:jbmorley/itvdb.git
+[submodule "dependencies/ILMovieDB"]
+	path = dependencies/ILMovieDB
+	url = git@github.com:jbmorley/ILMovieDB.git
