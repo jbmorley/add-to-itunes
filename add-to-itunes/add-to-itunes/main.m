@@ -22,8 +22,8 @@
 
 #import <Foundation/Foundation.h>
 #import <ISMediaKit/ISMediaKit.h>
+#import <ISArgumentParser/ISArgumentParser.h>
 
-#import "ISArgumentParser.h"
 #import "ISDownloadManager.h"
 
 BOOL downloadFields(NSMutableDictionary *dictionary, NSArray *fields)

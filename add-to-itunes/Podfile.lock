@@ -19,6 +19,8 @@ PODS:
   - AFNetworking/Serialization (2.5.0)
   - ILMovieDB (0.0.2):
     - AFNetworking (~> 2.5)
+  - ISArgumentParser (0.0.1):
+    - ISUtilities (~> 1.1)
   - ISMediaKit (0.0.1):
     - ILMovieDB
     - ISUtilities (~> 1.1)
@@ -29,12 +31,15 @@ PODS:
 
 DEPENDENCIES:
   - ILMovieDB (from `../dependencies/ILMovieDB`)
+  - ISArgumentParser (from `../dependencies/ISArgumentParser`)
   - ISMediaKit (from `../dependencies/ISMediaKit`)
   - iTVDb (from `../dependencies/itvdb`)
 
 EXTERNAL SOURCES:
   ILMovieDB:
     :path: ../dependencies/ILMovieDB
+  ISArgumentParser:
+    :path: ../dependencies/ISArgumentParser
   ISMediaKit:
     :path: ../dependencies/ISMediaKit
   iTVDb:
@@ -43,6 +48,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFNetworking: 0f54cb5d16ce38c1b76948faffb8d5fb705021c7
   ILMovieDB: 3b22572e9796e165de4969e2c15237c268a58243
+  ISArgumentParser: 454077275415fed2d3741c66c839f5c5c4701405
   ISMediaKit: 44b33efabbbe8867823030bbbe209757a8a2fd6e
   ISUtilities: 54a87bc8a165765eaaaeb55b44b0ac8b4ed091dd
   iTVDb: 46224f395fc5e64e4fb1778b16ebac0f0b44c6fa

@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		D84C39B41A2A3862004394AB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D84C39B31A2A3862004394AB /* main.m */; };
-		D85371A21A2A4B7900FB4D02 /* ISArgumentParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D853719F1A2A4B7900FB4D02 /* ISArgumentParser.m */; };
 		D85371A31A2A4B7900FB4D02 /* ISDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D85371A11A2A4B7900FB4D02 /* ISDownloadManager.m */; };
 		F8BE8AFA618FF947421875D0 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C05C8E901688C673F8783882 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -31,8 +30,6 @@
 		C05C8E901688C673F8783882 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D84C39B01A2A3862004394AB /* add-to-itunes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "add-to-itunes"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D84C39B31A2A3862004394AB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		D853719E1A2A4B7900FB4D02 /* ISArgumentParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISArgumentParser.h; sourceTree = "<group>"; };
-		D853719F1A2A4B7900FB4D02 /* ISArgumentParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISArgumentParser.m; sourceTree = "<group>"; };
 		D85371A01A2A4B7900FB4D02 /* ISDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISDownloadManager.h; sourceTree = "<group>"; };
 		D85371A11A2A4B7900FB4D02 /* ISDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISDownloadManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,8 +76,6 @@
 			isa = PBXGroup;
 			children = (
 				D84C39B31A2A3862004394AB /* main.m */,
-				D853719E1A2A4B7900FB4D02 /* ISArgumentParser.h */,
-				D853719F1A2A4B7900FB4D02 /* ISArgumentParser.m */,
 				D85371A01A2A4B7900FB4D02 /* ISDownloadManager.h */,
 				D85371A11A2A4B7900FB4D02 /* ISDownloadManager.m */,
 			);
@@ -188,7 +183,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D84C39B41A2A3862004394AB /* main.m in Sources */,
-				D85371A21A2A4B7900FB4D02 /* ISArgumentParser.m in Sources */,
 				D85371A31A2A4B7900FB4D02 /* ISDownloadManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
