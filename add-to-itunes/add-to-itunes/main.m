@@ -126,11 +126,17 @@ int main(int argc, const char * argv[]) {
             return error ? 1 : 0;
         }
         
-        // Check that the file exists.
+        // Check that the file exists and convert to an absolute path.
+        NSString *filename = options[@"filename"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        if (![fileManager fileExistsAtPath:options[@"filename"]]) {
+        if (![fileManager fileExistsAtPath:filename]) {
             fprintf(stderr, "File '%s' doesn't exist.\n", [options[@"filename"] UTF8String]);
             return 1;
+        } else {
+            if (![filename isAbsolutePath]) {
+                filename = [[fileManager currentDirectoryPath] stringByAppendingPathComponent:filename];
+                filename = [filename stringByStandardizingPath];
+            }
         }
         
         // Check the configuration exists.
@@ -170,7 +176,7 @@ int main(int argc, const char * argv[]) {
         printf("Fetching metadata...\n");
         dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         __block NSMutableDictionary *media = nil;
-        [databaseClient searchWithFilename:options[@"filename"] completionBlock:^(NSDictionary *result) {
+        [databaseClient searchWithFilename:filename completionBlock:^(NSDictionary *result) {
             media = [result mutableCopy];
             dispatch_semaphore_signal(sem);
         }];
@@ -194,7 +200,7 @@ int main(int argc, const char * argv[]) {
             printf("Adding movie '%s' to iTunes...\n", [media[ISMKKeyMovieTitle] UTF8String]);
             runScript([NSString stringWithFormat:
                        AddMovieScript,
-                       options[@"filename"],
+                       filename,
                        media[ISMKKeyMovieTitle],
                        media[ISMKKeyMovieThumbnail]]);
             
@@ -203,7 +209,7 @@ int main(int argc, const char * argv[]) {
             printf("Adding TV show '%s' to iTunes...\n", [media[ISMKKeyShowTitle] UTF8String]);
             runScript([NSString stringWithFormat:
                        AddShowScript,
-                       options[@"filename"],
+                       filename,
                        encodeEntities(media[ISMKKeyShowTitle]),
                        encodeEntities(media[ISMKKeyEpisodeTitle]),
                        [media[ISMKKeyEpisodeSeason] integerValue],
