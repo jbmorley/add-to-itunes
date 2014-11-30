@@ -120,13 +120,16 @@ int main(int argc, const char * argv[]) {
                        defaultValue:@(NO)
                              action:ISArgumentParserActionStoreTrue
                         description:@"delete the original file"];
-        NSDictionary *options = [parser parseArgumentsWithCount:argc vector:argv];
-        // TODO Figure out how to determine the exit code and exit status.
+        NSError *error = nil;
+        NSDictionary *options = [parser parseArgumentsWithCount:argc vector:argv error:&error];
+        if (options == nil) {
+            return error ? 1 : 0;
+        }
         
         // Check that the file exists.
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if (![fileManager fileExistsAtPath:options[@"filename"]]) {
-            fprintf(stderr, "File '%s' doesn't exist.", [options[@"filename"] UTF8String]);
+            fprintf(stderr, "File '%s' doesn't exist.\n", [options[@"filename"] UTF8String]);
             return 1;
         }
         
