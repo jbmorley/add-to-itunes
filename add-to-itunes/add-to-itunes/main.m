@@ -114,10 +114,11 @@ int main(int argc, const char * argv[]) {
         ISArgumentParser *parser = [ISArgumentParser argumentParserWithDescription:
                                     @"Fetch the metadata for a video media file (movie or show)."];
         [parser addArgumentWithName:@"filename"
-                        description:@"Filename of the media to be searched for."];
+                        description:@"filename of the media to be searched for"];
         [parser addArgumentWithName:@"--delete"
                     alternativeName:@"-d"
-                       defaultValue:@(NO)
+                               type:ISArgumentParserTypeBool
+                       defaultValue:@NO
                              action:ISArgumentParserActionStoreTrue
                         description:@"delete the original file"];
         NSError *error = nil;
@@ -223,6 +224,7 @@ int main(int argc, const char * argv[]) {
         
         // Delete the file if requested.
         if ([options[@"delete"] boolValue]) {
+            printf("Deleting file '%s'.\n", [filename UTF8String]);
             NSError *error = nil;
             if (![fileManager removeItemAtPath:options[@"filename"] error:&error]) {
                 fprintf(stderr, "Unable to delete file (%s).\n", [[error description] UTF8String]);
