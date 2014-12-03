@@ -268,6 +268,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6AD7F9A4A91DF7E6414CCDE5 /* Pods.debug.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -276,6 +277,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 27325D0309023B96DE4E9B25 /* Pods.release.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
