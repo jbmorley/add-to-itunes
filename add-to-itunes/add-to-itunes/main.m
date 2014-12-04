@@ -114,13 +114,13 @@ int main(int argc, const char * argv[]) {
         ISArgumentParser *parser = [ISArgumentParser argumentParserWithDescription:
                                     @"Fetch the metadata for a video media file (movie or show)."];
         [parser addArgumentWithName:@"filename"
-                        description:@"filename of the media to be searched for"];
+                               help:@"filename of the media to be searched for"];
         [parser addArgumentWithName:@"--delete"
                     alternativeName:@"-d"
-                               type:ISArgumentParserTypeBool
-                       defaultValue:@NO
                              action:ISArgumentParserActionStoreTrue
-                        description:@"delete the original file"];
+                       defaultValue:@NO
+                               type:ISArgumentParserTypeBool
+                               help:@"delete the original file"];
         NSError *error = nil;
         NSDictionary *options = [parser parseArgumentsWithCount:argc vector:argv error:&error];
         if (options == nil) {
