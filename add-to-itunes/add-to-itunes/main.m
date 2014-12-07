@@ -114,6 +114,7 @@ int main(int argc, const char * argv[]) {
         ISArgumentParser *parser = [ISArgumentParser argumentParserWithDescription:
                                     @"Fetch the metadata for a video media file (movie or show)."];
         [parser addArgumentWithName:@"filename"
+                             number:ISArgumentParserNumberOneOrMore
                                help:@"filename of the media to be searched for"];
         [parser addArgumentWithName:@"--delete"
                     alternativeName:@"-d"
@@ -127,109 +128,113 @@ int main(int argc, const char * argv[]) {
             return error ? 1 : 0;
         }
         
-        // Check that the file exists and convert to an absolute path.
-        NSString *filename = options[@"filename"];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if (![fileManager fileExistsAtPath:filename]) {
-            fprintf(stderr, "File '%s' doesn't exist.\n", [options[@"filename"] UTF8String]);
-            return 1;
-        } else {
-            if (![filename isAbsolutePath]) {
-                filename = [[fileManager currentDirectoryPath] stringByAppendingPathComponent:filename];
-                filename = [filename stringByStandardizingPath];
+        for (NSString *file in options[@"filename"]) {
+            
+            // Check that the file exists and convert to an absolute path.
+            NSString *filename = file;
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            if (![fileManager fileExistsAtPath:filename]) {
+                fprintf(stderr, "File '%s' doesn't exist.\n", [options[@"filename"] UTF8String]);
+                return 1;
+            } else {
+                if (![filename isAbsolutePath]) {
+                    filename = [[fileManager currentDirectoryPath] stringByAppendingPathComponent:filename];
+                    filename = [filename stringByStandardizingPath];
+                }
             }
-        }
-        
-        // Check the configuration exists.
-        NSString *configurationPath = [@"~/.add-to-itunes.plist" stringByExpandingTildeInPath];
-        if (![fileManager fileExistsAtPath:configurationPath]) {
-            fprintf(stderr, "Configuration file not found at '%s'.\n", [configurationPath UTF8String]);
-            return 1;
-        }
-        
-        // Load the configuration.
-        NSDictionary *configuration = [NSDictionary dictionaryWithContentsOfFile:configurationPath];
-        if (configuration == nil) {
-            fprintf(stderr, "Unable to load configuration file at '%s'.\n", [configurationPath UTF8String]);
-            return 1;
-        }
-        
-        // Check the tvdb-api-key exists.
-        NSString *tvdbAPIKey = configuration[@"tvdb-api-key"];
-        if (tvdbAPIKey == nil) {
-            fprintf(stderr, "Unable to find 'tvdb-api-key' in the configuration file.\n");
-            return 1;
-        }
-        
-        // Check the mdb-api-key exists.
-        NSString *mdbAPIKey = configuration[@"mdb-api-key"];
-        if (mdbAPIKey == nil) {
-            fprintf(stderr, "Unable to find 'mdb-api-key' in the configuration file.\n");
-            return 1;
-        }
-        
-        // Configure the database client.
-        ISMKDatabaseClient *databaseClient = [ISMKDatabaseClient sharedInstance];
-        [databaseClient setTVDBAPIKey:tvdbAPIKey
-                            mdbAPIKey:mdbAPIKey];
-        
-        // Fetch the metadata.
-        printf("Fetching metadata...\n");
-        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-        __block NSMutableDictionary *media = nil;
-        [databaseClient searchWithFilename:filename completionBlock:^(NSDictionary *result) {
-            media = [result mutableCopy];
-            dispatch_semaphore_signal(sem);
-        }];
-        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-        if (media == nil) {
-            fprintf(stderr, "Unable to find media.\n");
-            return 1;
-        }
-        
-        // Download the artwork.
-        BOOL success = downloadFields(media, @[ISMKKeyMovieThumbnail, ISMKKeyShowThumbnail]);
-        if (!success) {
-            fprintf(stderr, "Unable to download artwork.\n");
-            return 1;
-        }
-        
-        // Add the media file to iTunes.
-        ISMKType type = [media[ISMKKeyType] integerValue];
-        if (type == ISMKTypeMovie) {
             
-            printf("Adding movie '%s' to iTunes...\n", [media[ISMKKeyMovieTitle] UTF8String]);
-            runScript([NSString stringWithFormat:
-                       AddMovieScript,
-                       filename,
-                       media[ISMKKeyMovieTitle],
-                       media[ISMKKeyMovieThumbnail]]);
-            
-        } else if (type == ISMKTypeShow) {
-            
-            printf("Adding TV show '%s' to iTunes...\n", [media[ISMKKeyShowTitle] UTF8String]);
-            runScript([NSString stringWithFormat:
-                       AddShowScript,
-                       filename,
-                       encodeEntities(media[ISMKKeyShowTitle]),
-                       encodeEntities(media[ISMKKeyEpisodeTitle]),
-                       [media[ISMKKeyEpisodeSeason] integerValue],
-                       [media[ISMKKeyEpisodeNumber] integerValue],
-                       media[ISMKKeyShowThumbnail]]);
-            
-        } else {
-            fprintf(stderr, "Unsupported media type (%ld).\n", type);
-            return 1;
-        }
-        
-        // Delete the file if requested.
-        if ([options[@"delete"] boolValue]) {
-            printf("Deleting file '%s'.\n", [filename UTF8String]);
-            NSError *error = nil;
-            if (![fileManager removeItemAtPath:options[@"filename"] error:&error]) {
-                fprintf(stderr, "Unable to delete file (%s).\n", [[error description] UTF8String]);
+            // Check the configuration exists.
+            NSString *configurationPath = [@"~/.add-to-itunes.plist" stringByExpandingTildeInPath];
+            if (![fileManager fileExistsAtPath:configurationPath]) {
+                fprintf(stderr, "Configuration file not found at '%s'.\n", [configurationPath UTF8String]);
                 return 1;
             }
+            
+            // Load the configuration.
+            NSDictionary *configuration = [NSDictionary dictionaryWithContentsOfFile:configurationPath];
+            if (configuration == nil) {
+                fprintf(stderr, "Unable to load configuration file at '%s'.\n", [configurationPath UTF8String]);
+                return 1;
+            }
+            
+            // Check the tvdb-api-key exists.
+            NSString *tvdbAPIKey = configuration[@"tvdb-api-key"];
+            if (tvdbAPIKey == nil) {
+                fprintf(stderr, "Unable to find 'tvdb-api-key' in the configuration file.\n");
+                return 1;
+            }
+            
+            // Check the mdb-api-key exists.
+            NSString *mdbAPIKey = configuration[@"mdb-api-key"];
+            if (mdbAPIKey == nil) {
+                fprintf(stderr, "Unable to find 'mdb-api-key' in the configuration file.\n");
+                return 1;
+            }
+            
+            // Configure the database client.
+            ISMKDatabaseClient *databaseClient = [ISMKDatabaseClient sharedInstance];
+            [databaseClient setTVDBAPIKey:tvdbAPIKey
+                                mdbAPIKey:mdbAPIKey];
+            
+            // Fetch the metadata.
+            printf("Fetching metadata...\n");
+            dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+            __block NSMutableDictionary *media = nil;
+            [databaseClient searchWithFilename:filename completionBlock:^(NSDictionary *result) {
+                media = [result mutableCopy];
+                dispatch_semaphore_signal(sem);
+            }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+            if (media == nil) {
+                fprintf(stderr, "Unable to find media.\n");
+                return 1;
+            }
+            
+            // Download the artwork.
+            BOOL success = downloadFields(media, @[ISMKKeyMovieThumbnail, ISMKKeyShowThumbnail]);
+            if (!success) {
+                fprintf(stderr, "Unable to download artwork.\n");
+                return 1;
+            }
+            
+            // Add the media file to iTunes.
+            ISMKType type = [media[ISMKKeyType] integerValue];
+            if (type == ISMKTypeMovie) {
+                
+                printf("Adding movie '%s' to iTunes...\n", [media[ISMKKeyMovieTitle] UTF8String]);
+                runScript([NSString stringWithFormat:
+                           AddMovieScript,
+                           filename,
+                           media[ISMKKeyMovieTitle],
+                           media[ISMKKeyMovieThumbnail]]);
+                
+            } else if (type == ISMKTypeShow) {
+                
+                printf("Adding TV show '%s' to iTunes...\n", [media[ISMKKeyShowTitle] UTF8String]);
+                runScript([NSString stringWithFormat:
+                           AddShowScript,
+                           filename,
+                           encodeEntities(media[ISMKKeyShowTitle]),
+                           encodeEntities(media[ISMKKeyEpisodeTitle]),
+                           [media[ISMKKeyEpisodeSeason] integerValue],
+                           [media[ISMKKeyEpisodeNumber] integerValue],
+                           media[ISMKKeyShowThumbnail]]);
+                
+            } else {
+                fprintf(stderr, "Unsupported media type (%ld).\n", type);
+                return 1;
+            }
+            
+            // Delete the file if requested.
+            if ([options[@"delete"] boolValue]) {
+                printf("Deleting file '%s'.\n", [filename UTF8String]);
+                NSError *error = nil;
+                if (![fileManager removeItemAtPath:options[@"filename"] error:&error]) {
+                    fprintf(stderr, "Unable to delete file (%s).\n", [[error description] UTF8String]);
+                    return 1;
+                }
+            }
+            
         }
         
     }
