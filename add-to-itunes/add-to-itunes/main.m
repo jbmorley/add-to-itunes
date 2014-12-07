@@ -229,7 +229,7 @@ int main(int argc, const char * argv[]) {
             if ([options[@"delete"] boolValue]) {
                 printf("Deleting file '%s'.\n", [filename UTF8String]);
                 NSError *error = nil;
-                if (![fileManager removeItemAtPath:options[@"filename"] error:&error]) {
+                if (![fileManager removeItemAtPath:filename error:&error]) {
                     fprintf(stderr, "Unable to delete file (%s).\n", [[error description] UTF8String]);
                     return 1;
                 }
