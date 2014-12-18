@@ -134,7 +134,7 @@ int main(int argc, const char * argv[]) {
             NSString *filename = file;
             NSFileManager *fileManager = [NSFileManager defaultManager];
             if (![fileManager fileExistsAtPath:filename]) {
-                fprintf(stderr, "File '%s' doesn't exist.\n", [options[@"filename"] UTF8String]);
+                fprintf(stderr, "File '%s' does not exist.\n", [file UTF8String]);
                 return 1;
             } else {
                 if (![filename isAbsolutePath]) {
