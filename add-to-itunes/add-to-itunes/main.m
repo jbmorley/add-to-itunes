@@ -178,7 +178,7 @@ int main(int argc, const char * argv[]) {
                                 mdbAPIKey:mdbAPIKey];
             
             // Fetch the metadata.
-            printf("Fetching metadata...\n");
+            printf("Fetching metadata for '%s'...\n", [[filename lastPathComponent] UTF8String]);
             dispatch_semaphore_t sem = dispatch_semaphore_create(0);
             __block NSMutableDictionary *media = nil;
             [databaseClient searchWithFilename:filename completionBlock:^(NSDictionary *result) {
