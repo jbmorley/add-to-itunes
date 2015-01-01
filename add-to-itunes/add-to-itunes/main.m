@@ -72,6 +72,7 @@ static NSString *const AddShowScript =
 @"    set name to \"%@\"\n"
 @"    set season number to %ld\n"
 @"    set episode number to %ld\n"
+@"    set track number to %ld\n"
 @"\n"
 @"    try\n"
 @"      set f to POSIX file \"%@\"\n"
@@ -217,6 +218,7 @@ int main(int argc, const char * argv[]) {
                            encodeEntities(media[ISMKKeyShowTitle]),
                            encodeEntities(media[ISMKKeyEpisodeTitle]),
                            [media[ISMKKeyEpisodeSeason] integerValue],
+                           [media[ISMKKeyEpisodeNumber] integerValue],
                            [media[ISMKKeyEpisodeNumber] integerValue],
                            media[ISMKKeyShowThumbnail]]);
                 
