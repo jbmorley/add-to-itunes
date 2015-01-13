@@ -1,12 +1,6 @@
 [submodule "dependencies/ISMediaKit"]
 	path = dependencies/ISMediaKit
 	url = git@github.com:jbmorley/ISMediaKit.git
-[submodule "dependencies/iTVDb"]
-	path = dependencies/iTVDb
-	url = git@github.com:jbmorley/itvdb.git
-[submodule "dependencies/ILMovieDB"]
-	path = dependencies/ILMovieDB
-	url = git@github.com:jbmorley/ILMovieDB.git
 [submodule "dependencies/ISArgumentParser"]
 	path = dependencies/ISArgumentParser
 	url = git@github.com:jbmorley/ISArgumentParser.git
