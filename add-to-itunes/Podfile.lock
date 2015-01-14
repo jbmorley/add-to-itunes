@@ -17,40 +17,34 @@ PODS:
   - AFNetworking/Reachability (2.5.0)
   - AFNetworking/Security (2.5.0)
   - AFNetworking/Serialization (2.5.0)
-  - ILMovieDB (0.0.2):
+  - ILMovieDB (0.0.3):
     - AFNetworking (~> 2.5)
   - ISArgumentParser (0.0.1):
     - ISUtilities (~> 1.1)
   - ISMediaKit (0.0.1):
-    - ILMovieDB
+    - ILMovieDB (~> 0.0.2)
     - ISUtilities (~> 1.1)
-    - iTVDb (~> 0.0.4)
+    - iTVDb (~> 0.0.5)
   - ISUtilities (1.1.2):
     - ISUtilities/UIKit+ISUtilities (= 1.1.2)
-  - iTVDb (0.0.4)
+  - iTVDb (0.0.5)
 
 DEPENDENCIES:
-  - ILMovieDB (from `../dependencies/ILMovieDB`)
   - ISArgumentParser (from `../dependencies/ISArgumentParser`)
   - ISMediaKit (from `../dependencies/ISMediaKit`)
-  - iTVDb (from `../dependencies/itvdb`)
 
 EXTERNAL SOURCES:
-  ILMovieDB:
-    :path: ../dependencies/ILMovieDB
   ISArgumentParser:
     :path: ../dependencies/ISArgumentParser
   ISMediaKit:
     :path: ../dependencies/ISMediaKit
-  iTVDb:
-    :path: ../dependencies/itvdb
 
 SPEC CHECKSUMS:
   AFNetworking: 0f54cb5d16ce38c1b76948faffb8d5fb705021c7
-  ILMovieDB: 3b22572e9796e165de4969e2c15237c268a58243
+  ILMovieDB: 52703d2d6927e9d7d33b36e5ecdf84509bc85fdf
   ISArgumentParser: 454077275415fed2d3741c66c839f5c5c4701405
-  ISMediaKit: 44b33efabbbe8867823030bbbe209757a8a2fd6e
+  ISMediaKit: 68dfcc42f066f9eb37948aef04f30c4a54a9bf75
   ISUtilities: 54a87bc8a165765eaaaeb55b44b0ac8b4ed091dd
-  iTVDb: 46224f395fc5e64e4fb1778b16ebac0f0b44c6fa
+  iTVDb: 7611a9fc92b14073d1c60d2f093e6a74ecdfc7fa
 
 COCOAPODS: 0.35.0

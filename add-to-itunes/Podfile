@@ -1,6 +1,6 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
 platform :osx, '10.9'
 
-pod 'ILMovieDB', :path => '../dependencies/ILMovieDB'
-pod 'iTVDb', :path => '../dependencies/itvdb'
 pod 'ISMediaKit', :path => '../dependencies/ISMediaKit'
 pod 'ISArgumentParser', :path => '../dependencies/ISArgumentParser'
