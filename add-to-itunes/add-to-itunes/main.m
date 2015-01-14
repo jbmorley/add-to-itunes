@@ -144,38 +144,17 @@ int main(int argc, const char * argv[]) {
                 }
             }
             
-            // Check the configuration exists.
-            NSString *configurationPath = [@"~/.add-to-itunes.plist" stringByExpandingTildeInPath];
-            if (![fileManager fileExistsAtPath:configurationPath]) {
-                fprintf(stderr, "Configuration file not found at '%s'.\n", [configurationPath UTF8String]);
-                return 1;
-            }
-            
-            // Load the configuration.
-            NSDictionary *configuration = [NSDictionary dictionaryWithContentsOfFile:configurationPath];
-            if (configuration == nil) {
-                fprintf(stderr, "Unable to load configuration file at '%s'.\n", [configurationPath UTF8String]);
-                return 1;
-            }
-            
-            // Check the tvdb-api-key exists.
-            NSString *tvdbAPIKey = configuration[@"tvdb-api-key"];
-            if (tvdbAPIKey == nil) {
-                fprintf(stderr, "Unable to find 'tvdb-api-key' in the configuration file.\n");
-                return 1;
-            }
-            
-            // Check the mdb-api-key exists.
-            NSString *mdbAPIKey = configuration[@"mdb-api-key"];
-            if (mdbAPIKey == nil) {
-                fprintf(stderr, "Unable to find 'mdb-api-key' in the configuration file.\n");
-                return 1;
-            }
-            
             // Configure the database client.
             ISMKDatabaseClient *databaseClient = [ISMKDatabaseClient sharedInstance];
-            [databaseClient setTVDBAPIKey:tvdbAPIKey
-                                mdbAPIKey:mdbAPIKey];
+
+            // Load the configuration file.
+            NSString *configurationPath = [@"~/.add-to-itunes.plist" stringByExpandingTildeInPath];
+            NSError *error = nil;
+            BOOL success = [databaseClient configureWithFileAtPath:configurationPath error:&error];
+            if (!success) {
+                fprintf(stderr, "%s\n", [error.userInfo[ISMediaKitFailureReasonErrorKey] UTF8String]);
+                return 1;
+            }
             
             // Fetch the metadata.
             printf("Fetching metadata for '%s'...\n", [[filename lastPathComponent] UTF8String]);
@@ -192,7 +171,7 @@ int main(int argc, const char * argv[]) {
             }
             
             // Download the artwork.
-            BOOL success = downloadFields(media, @[ISMKKeyMovieThumbnail, ISMKKeyShowThumbnail]);
+            success = downloadFields(media, @[ISMKKeyMovieThumbnail, ISMKKeyShowThumbnail]);
             if (!success) {
                 fprintf(stderr, "Unable to download artwork.\n");
                 return 1;
