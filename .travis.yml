@@ -3,6 +3,7 @@ git:
     submodules: false
 before_install:
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
-    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - sed 's/git@github.com:/https:\/\/github.com\//' .gitmodules > .gitmodules-https
+    - mv .gitmodules-https .gitmodules
     - git submodule update --init --recursive
 script: scripts/build.sh
