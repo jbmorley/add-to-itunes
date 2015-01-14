@@ -2,6 +2,7 @@ language: objective-c
 git:
     submodules: false
 before_install:
+    - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
     - sed 's/git@github.com:/https:\/\/github.com\//' .gitmodules > .gitmodules-https
     - mv .gitmodules-https .gitmodules
