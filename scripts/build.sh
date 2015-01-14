@@ -4,6 +4,7 @@ set -e
 set -u
 
 pushd add-to-itunes
-pod install
+echo "Updating CocoaPods..."
+pod install --silent
 xcodebuild -workspace add-to-itunes.xcworkspace -scheme add-to-itunes clean build | xcpretty -c
 popd
