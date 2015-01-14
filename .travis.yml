@@ -1,4 +1,8 @@
 language: objective-c
+git:
+    submodules: false
 before_install:
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
+    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
 script: scripts/build.sh
