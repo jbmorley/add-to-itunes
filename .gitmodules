@@ -1,6 +1,3 @@
-[submodule "dependencies/ISMediaKit"]
-	path = dependencies/ISMediaKit
-	url = git@github.com:jbmorley/ISMediaKit.git
 [submodule "dependencies/ISArgumentParser"]
 	path = dependencies/ISArgumentParser
 	url = git@github.com:jbmorley/ISArgumentParser.git
