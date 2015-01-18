@@ -2,5 +2,5 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 platform :osx, '10.9'
 
-pod 'ISMediaKit', :path => '../dependencies/ISMediaKit'
+pod 'ISMediaKit', '~> 1.0'
 pod 'ISArgumentParser', :path => '../dependencies/ISArgumentParser'
