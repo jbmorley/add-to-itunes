@@ -82,13 +82,15 @@ static NSString *const AddShowScript =
 @"  end tell\n"
 @"end tell\n";
 
-BOOL runScript(NSString *script)
+BOOL runScript(NSString *script, BOOL debug)
 {
     NSTask *task = [NSTask new];
     task.launchPath = @"/usr/bin/osascript";
     task.arguments = @[@"-e", script];
     
-    NSLog(@"Script: %@", script);
+    if (debug) {
+        printf("Running AppleScript:\n%s", [script UTF8String]);
+    }
     
     NSPipe *output = [NSPipe pipe];
     [task setStandardOutput:output];
@@ -129,6 +131,12 @@ int main(int argc, const char * argv[]) {
                        defaultValue:@NO
                                type:ISArgumentParserTypeBool
                                help:@"delete the original file"];
+        [parser addArgumentWithName:@"--debug"
+                    alternativeName:nil
+                             action:ISArgumentParserActionStoreTrue
+                       defaultValue:@NO
+                               type:ISArgumentParserTypeBool
+                               help:@"print debug information"];
         NSError *error = nil;
         NSDictionary *options = [parser parseArgumentsWithCount:argc vector:argv error:&error];
         if (options == nil) {
@@ -192,7 +200,7 @@ int main(int argc, const char * argv[]) {
                                      AddMovieScript,
                                      filename,
                                      media[ISMKKeyMovieTitle],
-                                     media[ISMKKeyMovieThumbnail]]);
+                                     media[ISMKKeyMovieThumbnail]], [options[@"debug"] boolValue]);
                 if (!success) {
                     fprintf(stderr, "Unable to add movie to iTunes.\n");
                     return 1;
@@ -209,7 +217,7 @@ int main(int argc, const char * argv[]) {
                                      [media[ISMKKeyEpisodeSeason] integerValue],
                                      [media[ISMKKeyEpisodeNumber] integerValue],
                                      [media[ISMKKeyEpisodeNumber] integerValue],
-                                     media[ISMKKeyShowThumbnail]]);
+                                     media[ISMKKeyShowThumbnail]], [options[@"debug"] boolValue]);
                 if (!success) {
                     fprintf(stderr, "Unable to add show to iTunes.\n");
                     return 1;
