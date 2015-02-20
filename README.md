@@ -6,6 +6,19 @@ Objective-C command line utility to fetch relevant metadata and artwork for vide
 Usage
 -----
 
+```
+usage: add-to-itunes: [-h] [--delete] filename [filename ...]
+
+Fetch the metadata for a video media file (movie or show).
+
+positional arguments:
+  filename    filename of the media to be searched for
+
+optional arguments:
+  -h, --help    show this message and exit
+  --delete, -d    delete the original file
+```
+
 Building
 --------
 
