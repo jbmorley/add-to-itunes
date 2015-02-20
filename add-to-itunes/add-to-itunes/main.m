@@ -82,22 +82,28 @@ static NSString *const AddShowScript =
 @"  end tell\n"
 @"end tell\n";
 
-void runScript(NSString *script)
+BOOL runScript(NSString *script)
 {
     NSTask *task = [NSTask new];
     task.launchPath = @"/usr/bin/osascript";
     task.arguments = @[@"-e", script];
     
+    NSLog(@"Script: %@", script);
+    
     NSPipe *output = [NSPipe pipe];
     [task setStandardOutput:output];
+    NSPipe *error = [NSPipe pipe];
+    [task setStandardError:error];
     
     [task launch];
     
-    // Causes us to block on the task.
-    // TODO There's probably a much cleaner way of doing this.
-    [[output fileHandleForReading] readDataToEndOfFile];
+    [task waitUntilExit];
+    int status = [task terminationStatus];
+    if (status) {
+        return NO;
+    }
     
-    // TODO Check the output.
+    return YES;
 }
 
 NSString *encodeEntities(NSString *string)
@@ -182,24 +188,32 @@ int main(int argc, const char * argv[]) {
             if (type == ISMKTypeMovie) {
                 
                 printf("Adding movie '%s' to iTunes...\n", [media[ISMKKeyMovieTitle] UTF8String]);
-                runScript([NSString stringWithFormat:
-                           AddMovieScript,
-                           filename,
-                           media[ISMKKeyMovieTitle],
-                           media[ISMKKeyMovieThumbnail]]);
+                success = runScript([NSString stringWithFormat:
+                                     AddMovieScript,
+                                     filename,
+                                     media[ISMKKeyMovieTitle],
+                                     media[ISMKKeyMovieThumbnail]]);
+                if (!success) {
+                    fprintf(stderr, "Unable to add movie to iTunes.\n");
+                    return 1;
+                }
                 
             } else if (type == ISMKTypeShow) {
                 
                 printf("Adding TV show '%s' to iTunes...\n", [media[ISMKKeyShowTitle] UTF8String]);
-                runScript([NSString stringWithFormat:
-                           AddShowScript,
-                           filename,
-                           encodeEntities(media[ISMKKeyShowTitle]),
-                           encodeEntities(media[ISMKKeyEpisodeTitle]),
-                           [media[ISMKKeyEpisodeSeason] integerValue],
-                           [media[ISMKKeyEpisodeNumber] integerValue],
-                           [media[ISMKKeyEpisodeNumber] integerValue],
-                           media[ISMKKeyShowThumbnail]]);
+                success = runScript([NSString stringWithFormat:
+                                     AddShowScript,
+                                     filename,
+                                     encodeEntities(media[ISMKKeyShowTitle]),
+                                     encodeEntities(media[ISMKKeyEpisodeTitle]),
+                                     [media[ISMKKeyEpisodeSeason] integerValue],
+                                     [media[ISMKKeyEpisodeNumber] integerValue],
+                                     [media[ISMKKeyEpisodeNumber] integerValue],
+                                     media[ISMKKeyShowThumbnail]]);
+                if (!success) {
+                    fprintf(stderr, "Unable to add show to iTunes.\n");
+                    return 1;
+                }
                 
             } else {
                 fprintf(stderr, "Unsupported media type (%ld).\n", type);
