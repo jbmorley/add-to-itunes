@@ -116,6 +116,105 @@ NSString *encodeEntities(NSString *string)
     return result;
 }
 
+BOOL add(NSString *file, BOOL delete, BOOL debug)
+{
+    // Check that the file exists and convert to an absolute path.
+    NSString *filename = file;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:filename]) {
+        fprintf(stderr, "File '%s' does not exist.\n", [file UTF8String]);
+        return NO;
+    } else {
+        if (![filename isAbsolutePath]) {
+            filename = [[fileManager currentDirectoryPath] stringByAppendingPathComponent:filename];
+            filename = [filename stringByStandardizingPath];
+        }
+    }
+    
+    // Configure the database client.
+    ISMKDatabaseClient *databaseClient = [ISMKDatabaseClient sharedInstance];
+    
+    // Load the configuration file.
+    NSString *configurationPath = [@"~/.add-to-itunes.plist" stringByExpandingTildeInPath];
+    NSError *error = nil;
+    BOOL success = [databaseClient configureWithFileAtPath:configurationPath error:&error];
+    if (!success) {
+        fprintf(stderr, "%s\n", [error.userInfo[ISMediaKitFailureReasonErrorKey] UTF8String]);
+        return NO;
+    }
+    
+    // Fetch the metadata.
+    printf("Fetching metadata for '%s'...\n", [[filename lastPathComponent] UTF8String]);
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block NSMutableDictionary *media = nil;
+    [databaseClient searchWithFilename:filename completionBlock:^(NSDictionary *result) {
+        media = [result mutableCopy];
+        dispatch_semaphore_signal(sem);
+    }];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    if (media == nil) {
+        fprintf(stderr, "Unable to find media.\n");
+        return NO;
+    }
+    
+    // Download the artwork.
+    success = downloadFields(media, @[ISMKKeyMovieThumbnail, ISMKKeyShowThumbnail]);
+    if (!success) {
+        fprintf(stderr, "Unable to download artwork.\n");
+        return NO;
+    }
+    
+    // Add the media file to iTunes.
+    ISMKType type = [media[ISMKKeyType] integerValue];
+    if (type == ISMKTypeMovie) {
+        
+        printf("Adding movie '%s' to iTunes...\n", [media[ISMKKeyMovieTitle] UTF8String]);
+        success = runScript([NSString stringWithFormat:
+                             AddMovieScript,
+                             filename,
+                             media[ISMKKeyMovieTitle],
+                             media[ISMKKeyMovieThumbnail]], debug);
+        if (!success) {
+            fprintf(stderr, "Unable to add movie to iTunes.\n");
+            return NO;
+        }
+        
+    } else if (type == ISMKTypeShow) {
+        
+        printf("Adding TV show '%s' to iTunes...\n", [media[ISMKKeyShowTitle] UTF8String]);
+        success = runScript([NSString stringWithFormat:
+                             AddShowScript,
+                             filename,
+                             encodeEntities(media[ISMKKeyShowTitle]),
+                             encodeEntities(media[ISMKKeyEpisodeTitle]),
+                             [media[ISMKKeyEpisodeSeason] integerValue],
+                             [media[ISMKKeyEpisodeNumber] integerValue],
+                             [media[ISMKKeyEpisodeNumber] integerValue],
+                             media[ISMKKeyShowThumbnail]], debug);
+        if (!success) {
+            fprintf(stderr, "Unable to add show to iTunes.\n");
+            return NO;
+        }
+        
+    } else {
+        fprintf(stderr, "Unsupported media type (%ld).\n", type);
+        return NO;
+    }
+    
+    // Delete the file if requested.
+    if (delete) {
+        printf("Deleting file '%s'.\n", [filename UTF8String]);
+        NSError *error = nil;
+        if (![fileManager removeItemAtPath:filename error:&error]) {
+            fprintf(stderr, "Unable to delete file (%s).\n", [[error description] UTF8String]);
+            return NO;
+        }
+    }
+    
+    return YES;
+
+}
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         
@@ -137,6 +236,12 @@ int main(int argc, const char * argv[]) {
                        defaultValue:@NO
                                type:ISArgumentParserTypeBool
                                help:@"print debug information"];
+        [parser addArgumentWithName:@"--ignore-failures"
+                    alternativeName:nil
+                             action:ISArgumentParserActionStoreTrue
+                       defaultValue:@NO
+                               type:ISArgumentParserTypeBool
+                               help:@"ignore failures and continue processing files"];
         NSError *error = nil;
         NSDictionary *options = [parser parseArgumentsWithCount:argc vector:argv error:&error];
         if (options == nil) {
@@ -144,98 +249,10 @@ int main(int argc, const char * argv[]) {
         }
         
         for (NSString *file in options[@"filename"]) {
-            
-            // Check that the file exists and convert to an absolute path.
-            NSString *filename = file;
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            if (![fileManager fileExistsAtPath:filename]) {
-                fprintf(stderr, "File '%s' does not exist.\n", [file UTF8String]);
-                return 1;
-            } else {
-                if (![filename isAbsolutePath]) {
-                    filename = [[fileManager currentDirectoryPath] stringByAppendingPathComponent:filename];
-                    filename = [filename stringByStandardizingPath];
-                }
-            }
-            
-            // Configure the database client.
-            ISMKDatabaseClient *databaseClient = [ISMKDatabaseClient sharedInstance];
 
-            // Load the configuration file.
-            NSString *configurationPath = [@"~/.add-to-itunes.plist" stringByExpandingTildeInPath];
-            NSError *error = nil;
-            BOOL success = [databaseClient configureWithFileAtPath:configurationPath error:&error];
-            if (!success) {
-                fprintf(stderr, "%s\n", [error.userInfo[ISMediaKitFailureReasonErrorKey] UTF8String]);
+            BOOL success = add(file, [options[@"delete"] boolValue], [options[@"debug"] boolValue]);
+            if (![options[@"ignore-failures"] boolValue] && !success) {
                 return 1;
-            }
-            
-            // Fetch the metadata.
-            printf("Fetching metadata for '%s'...\n", [[filename lastPathComponent] UTF8String]);
-            dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-            __block NSMutableDictionary *media = nil;
-            [databaseClient searchWithFilename:filename completionBlock:^(NSDictionary *result) {
-                media = [result mutableCopy];
-                dispatch_semaphore_signal(sem);
-            }];
-            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-            if (media == nil) {
-                fprintf(stderr, "Unable to find media.\n");
-                return 1;
-            }
-            
-            // Download the artwork.
-            success = downloadFields(media, @[ISMKKeyMovieThumbnail, ISMKKeyShowThumbnail]);
-            if (!success) {
-                fprintf(stderr, "Unable to download artwork.\n");
-                return 1;
-            }
-            
-            // Add the media file to iTunes.
-            ISMKType type = [media[ISMKKeyType] integerValue];
-            if (type == ISMKTypeMovie) {
-                
-                printf("Adding movie '%s' to iTunes...\n", [media[ISMKKeyMovieTitle] UTF8String]);
-                success = runScript([NSString stringWithFormat:
-                                     AddMovieScript,
-                                     filename,
-                                     media[ISMKKeyMovieTitle],
-                                     media[ISMKKeyMovieThumbnail]], [options[@"debug"] boolValue]);
-                if (!success) {
-                    fprintf(stderr, "Unable to add movie to iTunes.\n");
-                    return 1;
-                }
-                
-            } else if (type == ISMKTypeShow) {
-                
-                printf("Adding TV show '%s' to iTunes...\n", [media[ISMKKeyShowTitle] UTF8String]);
-                success = runScript([NSString stringWithFormat:
-                                     AddShowScript,
-                                     filename,
-                                     encodeEntities(media[ISMKKeyShowTitle]),
-                                     encodeEntities(media[ISMKKeyEpisodeTitle]),
-                                     [media[ISMKKeyEpisodeSeason] integerValue],
-                                     [media[ISMKKeyEpisodeNumber] integerValue],
-                                     [media[ISMKKeyEpisodeNumber] integerValue],
-                                     media[ISMKKeyShowThumbnail]], [options[@"debug"] boolValue]);
-                if (!success) {
-                    fprintf(stderr, "Unable to add show to iTunes.\n");
-                    return 1;
-                }
-                
-            } else {
-                fprintf(stderr, "Unsupported media type (%ld).\n", type);
-                return 1;
-            }
-            
-            // Delete the file if requested.
-            if ([options[@"delete"] boolValue]) {
-                printf("Deleting file '%s'.\n", [filename UTF8String]);
-                NSError *error = nil;
-                if (![fileManager removeItemAtPath:filename error:&error]) {
-                    fprintf(stderr, "Unable to delete file (%s).\n", [[error description] UTF8String]);
-                    return 1;
-                }
             }
             
         }
